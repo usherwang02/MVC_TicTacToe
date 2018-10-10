@@ -17,15 +17,14 @@ public class View {
     private JPanel messages;
     private int player;
     private int movesLeft;
-	public View() {
+    private Color color;
+	public View(Color color) {
 		gui = new JFrame("Tic Tac Toe");
 	    blocks = new JButton[3][3];
 	    reset = new JButton("Reset");
 	    playerturn= new JTextArea();
 	    player = 1;
 	    movesLeft = 9;
-//	    Model model = new Model();
-//	    Controller controller = new Controller(player, movesLeft, playerturn, blocks, model);
 	    gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gui.setSize(new Dimension(500, 350));
         gui.setResizable(true);
@@ -37,7 +36,8 @@ public class View {
         options = new JPanel(new FlowLayout());
         options.add(reset);
         messages = new JPanel(new FlowLayout());
-        messages.setBackground(Color.white);
+        this.color = color;
+        messages.setBackground(this.color);
 
         gui.add(gamePanel, BorderLayout.NORTH);
         gui.add(options, BorderLayout.CENTER);
@@ -48,6 +48,14 @@ public class View {
 //        playerturn.setText("Player 1 to play 'X'");
 	}
 	
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
 	public JFrame getGui() {
 		return gui;
 	}

@@ -5,16 +5,27 @@ import java.awt.*;
 import java.awt.event.*;
 import view.View;
 import model.Model;
+import java.util.Scanner;
 
 public class Controller{
 	private Model model;
 	private View view;
-	public Controller(Model model, View view) {
+	private boolean terminalControl;
+	public Controller(Model model, View view, boolean terminalControl) {
 		this.model = model;
 		this.view = view;
-		initView();
+		this.terminalControl = terminalControl;
+		initController(this.terminalControl);
 	}
 	
+	
+	public boolean getTerminalControl() {
+		return terminalControl;
+	}
+
+	public void setTerminalControl(boolean terminalControl) {
+		this.terminalControl = terminalControl;
+	}
 	private class resetButtonHandler implements ActionListener{
     	public void actionPerformed(ActionEvent e) {
             resetGame();
@@ -22,7 +33,9 @@ public class Controller{
     	}
 	
     private class cellButtonHandler implements ActionListener{
+    	public boolean terminalControl;
     	public void actionPerformed(ActionEvent e){
+//    		terminalControl("X", 1);
     		Judge(e);
     		}
     	} 
@@ -30,7 +43,7 @@ public class Controller{
     	view.getPlayerturn().setText("Player 1 to play '" + model.getLabel1() + "'");
     }
     
-    public void initController() {
+    public void initController(boolean terminalControl) {
     	view.getReset().addActionListener(new resetButtonHandler());
     	for(int row = 0; row<3 ;row++) {
             for(int column = 0; column<3 ;column++) {
@@ -42,6 +55,16 @@ public class Controller{
             }
         }
     	view.getGui().setVisible(true);
+    	if(terminalControl) {
+    		terminalControl(model.getLabel1(), 1, view.getBlocks());
+    		for(;;) {
+    	        if(view.getMovesLeft()%2 == 1) {
+    	        	terminalControl(model.getLabel1(), 1, view.getBlocks());
+    	        } else{
+    	        	terminalControl(model.getLabel2(), 2, view.getBlocks());
+    	        }
+        	}
+    	}
     }
     
     public void resetGame() {
@@ -113,79 +136,79 @@ public class Controller{
         }
     }
 //  check the vertex points
-  public void vertexJudge(int m, int n, int player, int movesleft) {
-	  String test = new String();
-	  if(player == 1) {
+    public void vertexJudge(int m, int n, int player, int movesleft) {
+		  String test = new String();
+		  if(player == 1) {
+				test = model.getLabel1();
+			}else {
+				  test = model.getLabel2();
+			}
+		  view.getBlocks()[m][n].setText(test);
+	      view.getBlocks()[m][n].setEnabled(false);
+	      if(movesleft<7) {
+		      	if((view.getBlocks()[m][0].getText().equals(view.getBlocks()[m][1].getText()) &&
+		                  view.getBlocks()[m][1].getText().equals(view.getBlocks()[m][2].getText())) ||
+		                 (view.getBlocks()[0][n].getText().equals(view.getBlocks()[1][n].getText()) &&
+		                  view.getBlocks()[1][n].getText().equals(view.getBlocks()[2][n].getText())) ||
+		                 (view.getBlocks()[m][n].getText().equals(view.getBlocks()[1][1].getText()) &&
+		                  view.getBlocks()[1][1].getText().equals(view.getBlocks()[2-m][2-n].getText()))) {
+		      		view.getPlayerturn().setText("Player " + player +" wins!");
+		  		for(int i = 0;i<3;i++) {
+		          for(int j = 0;j<3;j++) {
+		              view.getBlocks()[i][j].setEnabled(false);
+		          }
+		      }
+		  }else if(movesleft==0) {
+		      view.getPlayerturn().setText("Game ends in a draw");
+		  }
+	   } 
+	//   	player = 3 - player;
+	}
+  
+//check the center point
+	public void centerJudge(int player, int movesleft) {
+		String test = new String();
+		if(player == 1) {
+			test = model.getLabel1();
+		}else {
+			  test = model.getLabel2();
+		}
+	    view.getBlocks()[1][1].setText(test);
+	    view.getBlocks()[1][1].setEnabled(false);
+	    if(movesleft<7) {
+	  	  if((view.getBlocks()[1][1].getText().equals(view.getBlocks()[1][0].getText()) &&
+	                view.getBlocks()[1][0].getText().equals(view.getBlocks()[1][2].getText())) ||
+	               (view.getBlocks()[1][1].getText().equals(view.getBlocks()[0][1].getText()) &&
+	                view.getBlocks()[0][1].getText().equals(view.getBlocks()[2][1].getText())) ||
+	               (view.getBlocks()[1][1].getText().equals(view.getBlocks()[0][0].getText()) &&
+	                view.getBlocks()[0][0].getText().equals(view.getBlocks()[2][2].getText())) ||
+	               (view.getBlocks()[1][1].getText().equals(view.getBlocks()[0][2].getText()) &&
+	                view.getBlocks()[0][2].getText().equals(view.getBlocks()[2][0].getText()))) {
+	  		  view.getPlayerturn().setText("Player " + player +" wins!");
+	            for(int i = 0;i<3;i++) {
+	                for(int j = 0;j<3;j++) {
+	                    view.getBlocks()[i][j].setEnabled(false);
+	                }
+	            }
+	        } else if(movesleft==0) {
+	            view.getPlayerturn().setText("Game ends in a draw");
+	        }
+	    }
+	//	  player = 3 - player;
+	}
+
+//check the rest points
+	public void restJudge(int m, int n, int player, int movesleft) {
+		String test = new String();
+		if(player == 1) {
 			test = model.getLabel1();
 		}else {
 			  test = model.getLabel2();
 		}
 	  view.getBlocks()[m][n].setText(test);
-      view.getBlocks()[m][n].setEnabled(false);
+	  view.getBlocks()[m][n].setEnabled(false);
       if(movesleft<7) {
-      	if((view.getBlocks()[m][0].getText().equals(view.getBlocks()[m][1].getText()) &&
-                  view.getBlocks()[m][1].getText().equals(view.getBlocks()[m][2].getText())) ||
-                 (view.getBlocks()[0][n].getText().equals(view.getBlocks()[1][n].getText()) &&
-                  view.getBlocks()[1][n].getText().equals(view.getBlocks()[2][n].getText())) ||
-                 (view.getBlocks()[m][n].getText().equals(view.getBlocks()[1][1].getText()) &&
-                  view.getBlocks()[1][1].getText().equals(view.getBlocks()[n][m].getText()))) {
-              view.getPlayerturn().setText("Player " + player +" wins!");
-              for(int i = 0;i<3;i++) {
-                  for(int j = 0;j<3;j++) {
-                      view.getBlocks()[i][j].setEnabled(false);
-                  }
-              }
-          } else if(movesleft==0) {
-              view.getPlayerturn().setText("Game ends in a draw");
-          }
-      } 
-//   	player = 3 - player;
-  }
-  
-//check the center point
-public void centerJudge(int player, int movesleft) {
-	String test = new String();
-	if(player == 1) {
-		test = model.getLabel1();
-	}else {
-		  test = model.getLabel2();
-	}
-    view.getBlocks()[1][1].setText(test);
-    view.getBlocks()[1][1].setEnabled(false);
-    if(movesleft<7) {
-  	  if((view.getBlocks()[1][1].getText().equals(view.getBlocks()[1][0].getText()) &&
-                view.getBlocks()[1][0].getText().equals(view.getBlocks()[1][2].getText())) ||
-               (view.getBlocks()[1][1].getText().equals(view.getBlocks()[0][1].getText()) &&
-                view.getBlocks()[0][1].getText().equals(view.getBlocks()[2][1].getText())) ||
-               (view.getBlocks()[1][1].getText().equals(view.getBlocks()[0][0].getText()) &&
-                view.getBlocks()[0][0].getText().equals(view.getBlocks()[2][2].getText())) ||
-               (view.getBlocks()[1][1].getText().equals(view.getBlocks()[0][2].getText()) &&
-                view.getBlocks()[0][2].getText().equals(view.getBlocks()[2][0].getText()))) {
-  		  view.getPlayerturn().setText("Player " + player +" wins!");
-            for(int i = 0;i<3;i++) {
-                for(int j = 0;j<3;j++) {
-                    view.getBlocks()[i][j].setEnabled(false);
-                }
-            }
-        } else if(movesleft==0) {
-            view.getPlayerturn().setText("Game ends in a draw");
-        }
-    }
-//	  player = 3 - player;
-}
-
-//check the rest points
-public void restJudge(int m, int n, int player, int movesleft) {
-	String test = new String();
-	if(player == 1) {
-		test = model.getLabel1();
-	}else {
-		  test = model.getLabel2();
-	}
-  view.getBlocks()[m][n].setText(test);
-    view.getBlocks()[m][n].setEnabled(false);
-    if(movesleft<7) {
-  	  if((view.getBlocks()[m][0].getText().equals(view.getBlocks()[m][1].getText()) &&
+    	  if((view.getBlocks()[m][0].getText().equals(view.getBlocks()[m][1].getText()) &&
 	             view.getBlocks()[m][1].getText().equals(view.getBlocks()[m][2].getText())) ||
 	            (view.getBlocks()[0][n].getText().equals(view.getBlocks()[1][n].getText()) &&
 	             view.getBlocks()[1][n].getText().equals(view.getBlocks()[2][n].getText()))) {
@@ -198,7 +221,18 @@ public void restJudge(int m, int n, int player, int movesleft) {
 	      } else if(movesleft==0) {
 	          view.getPlayerturn().setText("Game ends in a draw");
 	      }
-    	}
-//	 player = 3 - player;
+       }
+	//	 player = 3 - player;
+	}
+	public void terminalControl(String label, int player, JButton[][] button){
+		Scanner scanner = new Scanner(System.in);
+	    System.out.printf("Player %d plays %s: Insert row and column index (between 0 and 2) to play: \n", player, label);
+	    System.out.printf("Column index: ");
+	    int column = Integer.parseInt(scanner.next());
+	    System.out.printf("Row index: ");
+	    int row = Integer.parseInt(scanner.next());
+//	    System.out.println(column);
+//	    System.out.println(row);
+	    button[row][column].doClick();	    
 	}
 }

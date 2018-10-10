@@ -162,7 +162,7 @@ public class TicTacToe {
                    (blocks[0][n].getText().equals(blocks[1][n].getText()) &&
                     blocks[1][n].getText().equals(blocks[2][n].getText())) ||
                    (blocks[m][n].getText().equals(blocks[1][1].getText()) &&
-                    blocks[1][1].getText().equals(blocks[n][m].getText()))) {
+                    blocks[1][1].getText().equals(blocks[2-m][2-n].getText()))) {
                 playerturn.setText("Player" + player +"wins!");
                 for(int i = 0;i<3;i++) {
                     for(int j = 0;j<3;j++) {
